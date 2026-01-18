@@ -2,13 +2,14 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
+  workflow_dispatch:  # Позволяет запускать вручную
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -17,15 +18,33 @@ jobs:
           node-version: '18'
           cache: 'yarn'
 
+      - name: Debug - Show directory structure
+        run: |
+          echo "=== Current directory structure ==="
+          pwd
+          ls -la
+          echo "=== Source directory ==="
+          ls -la src/ || echo "src directory not found"
+          echo "=== Package.json ==="
+          cat package.json || echo "No package.json"
+
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
 
       - name: Build project
-        run: yarn build
+        run: |
+          echo "=== Building project ==="
+          yarn build || (echo "Build failed" && exit 1)
+
+      - name: Debug - Check dist folder
+        run: |
+          echo "=== Dist folder contents ==="
+          ls -la dist/ || echo "dist folder not found"
 
       - name: Deploy to GitHub Pages
+        if: success()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          publish_branch: gh-pages  # Создает ветку gh-pages
+          publish_branch: gh-pages
