@@ -1,46 +1,43 @@
-name: Build and Deploy with Yarn
+name: Deploy to GitHub Pages via gh-pages branch
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js with Yarn
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'yarn' # Кэшируем зависимости yarn для ускорения
+          cache: 'yarn'
 
-      - name: Install Dependencies with Yarn
-        run: yarn install --frozen-lockfile # Используем yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-      - name: Build with Yarn
-        run: yarn build # Используем yarn
+      - name: Build project
+        run: yarn build
 
-      - name: Debug - Show build result
-        run: ls -la dist/ || echo "Dist folder not found!"
+      - name: Verify build output
+        run: |
+          echo "Checking dist folder..."
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ ERROR: dist/index.html not found!"
+            echo "Contents of dist/:"
+            ls -la dist/ 2>/dev/null || echo "dist folder doesn't exist"
+            exit 1
+          fi
+          echo "✅ Build successful"
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: ./dist
-
-  deploy:
-    needs: build
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true  # Создает чистую историю в gh-pages
