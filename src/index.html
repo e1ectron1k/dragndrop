@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Trello-like Board</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Trello-like Board</h1>
+        
+        <div class="board">
+            <!-- To Do Column -->
+            <div class="column" data-column-id="todo">
+                <div class="column-header">
+                    <h2>To Do</h2>
+                    <span class="card-count">0</span>
+                </div>
+                <div class="cards-container" data-cards-container="todo">
+                    <!-- Cards will be inserted here -->
+                </div>
+                <button class="add-card-btn" data-column="todo">
+                    <i class="fas fa-plus"></i> Add another card
+                </button>
+            </div>
+
+            <!-- In Progress Column -->
+            <div class="column" data-column-id="progress">
+                <div class="column-header">
+                    <h2>In Progress</h2>
+                    <span class="card-count">0</span>
+                </div>
+                <div class="cards-container" data-cards-container="progress">
+                    <!-- Cards will be inserted here -->
+                </div>
+                <button class="add-card-btn" data-column="progress">
+                    <i class="fas fa-plus"></i> Add another card
+                </button>
+            </div>
+
+            <!-- Done Column -->
+            <div class="column" data-column-id="done">
+                <div class="column-header">
+                    <h2>Done</h2>
+                    <span class="card-count">0</span>
+                </div>
+                <div class="cards-container" data-cards-container="done">
+                    <!-- Cards will be inserted here -->
+                </div>
+                <button class="add-card-btn" data-column="done">
+                    <i class="fas fa-plus"></i> Add another card
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template for card -->
+    <template id="card-template">
+        <div class="card" draggable="true">
+            <div class="card-content">
+                <span class="card-text"></span>
+                <button class="delete-card-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </template>
+</body>
+</html>
