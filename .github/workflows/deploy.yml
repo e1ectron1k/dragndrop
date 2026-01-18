@@ -11,22 +11,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 18 (стабильная для webpack 5)
+      - name: Setup Node.js 20 (LTS)
         uses: actions/setup-node@v4
         with:
-          node-version: '18.20.4' # Конкретная стабильная версия
+          node-version: '20'
           cache: 'yarn'
 
       - name: Install dependencies
-        run: |
-          yarn install --frozen-lockfile
-          # Проверяем, что webpack-cli доступен
-          ./node_modules/.bin/webpack --version || echo "Webpack check"
+        run: yarn install --frozen-lockfile
 
       - name: Build project
-        run: |
-          # Используем npx для гарантии, что используется локальный webpack
-          npx webpack --mode production
+        run: npx webpack --mode production
           
       - name: Verify build
         run: |
