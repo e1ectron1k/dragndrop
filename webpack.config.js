@@ -1,23 +1,16 @@
 const path = require('path');
-const webpack = require('webpack');
-const HtmlWebPackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-  target: 'web',
-  devtool: 'inline-source-map',
+  mode: 'production',
+  entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.js',
     clean: true,
+    publicPath: '/',  // Важно для GitHub Pages
   },
-  devServer: {
-    historyApiFallback: true,
-    contentBase: path.resolve(__dirname, '/dist'),
-    open: true,
-    compress: true,
-    port: 8080,
-  },
-  entry: './src/index.js',
   module: {
     rules: [
       {
@@ -28,31 +21,22 @@ module.exports = {
         },
       },
       {
-        test: /\.html$/,
-        use: [
-          {
-            loader: 'html-loader',
-          },
-        ],
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader, 
-          'css-loader',
-        ],
+        test: /\.html$/,
+        use: ['html-loader'],
       },
     ],
   },
   plugins: [
-    new HtmlWebPackPlugin({
+    new HtmlWebpackPlugin({
       template: './src/index.html',
-      filename: './index.html',
+      filename: 'index.html',
     }),
     new MiniCssExtractPlugin({
-      filename: '[name].css',
-      chunkFilename: '[id].css',
+      filename: 'style.css',
     }),
-    new webpack.HotModuleReplacementPlugin(),
   ],
 };
