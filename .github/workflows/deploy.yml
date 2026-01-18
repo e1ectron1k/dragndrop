@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages via gh-pages branch
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -11,33 +11,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js with Yarn
+      - name: Setup Node.js 18 (стабильная для webpack 5)
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '18.20.4' # Конкретная стабильная версия
           cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: |
+          yarn install --frozen-lockfile
+          # Проверяем, что webpack-cli доступен
+          ./node_modules/.bin/webpack --version || echo "Webpack check"
 
       - name: Build project
-        run: yarn build
-
-      - name: Verify build output
         run: |
-          echo "Checking dist folder..."
-          if [ ! -f "dist/index.html" ]; then
-            echo "❌ ERROR: dist/index.html not found!"
-            echo "Contents of dist/:"
-            ls -la dist/ 2>/dev/null || echo "dist folder doesn't exist"
+          # Используем npx для гарантии, что используется локальный webpack
+          npx webpack --mode production
+          
+      - name: Verify build
+        run: |
+          echo "Содержимое dist/:"
+          ls -la dist/
+          if [ -f "dist/index.html" ]; then
+            echo "✅ index.html найден"
+          else
+            echo "❌ index.html не найден!"
             exit 1
           fi
-          echo "✅ Build successful"
 
-      - name: Deploy to gh-pages branch
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: gh-pages
-          force_orphan: true  # Создает чистую историю в gh-pages
+          force_orphan: true
