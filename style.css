@@ -1,0 +1,220 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+h1 {
+    color: white;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.board {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.column {
+    background: #ebecf0;
+    border-radius: 8px;
+    padding: 15px;
+    min-width: 300px;
+    max-width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+}
+
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.column-header h2 {
+    color: #172b4d;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.card-count {
+    background: #dfe1e6;
+    color: #5e6c84;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.cards-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 200px;
+    padding: 5px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.cards-container.drag-over {
+    background-color: rgba(9, 30, 66, 0.1);
+    outline: 2px dashed #4c9aff;
+}
+
+.add-card-btn {
+    background: rgba(9, 30, 66, 0.04);
+    border: none;
+    border-radius: 4px;
+    color: #5e6c84;
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: background-color 0.2s;
+}
+
+.add-card-btn:hover {
+    background: rgba(9, 30, 66, 0.08);
+    color: #172b4d;
+}
+
+.add-card-btn i {
+    font-size: 0.8rem;
+}
+
+.card {
+    background: white;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.card.dragging {
+    opacity: 0.5;
+    transform: rotate(3deg);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    cursor: grabbing;
+}
+
+.card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.card-text {
+    flex: 1;
+    color: #172b4d;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.delete-card-btn {
+    background: transparent;
+    border: none;
+    color: #5e6c84;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.2s, background-color 0.2s;
+    font-size: 0.9rem;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card:hover .delete-card-btn {
+    opacity: 1;
+}
+
+.delete-card-btn:hover {
+    background: rgba(9, 30, 66, 0.08);
+    color: #172b4d;
+}
+
+/* Scrollbar styling */
+.cards-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.cards-container::-webkit-scrollbar-track {
+    background: rgba(9, 30, 66, 0.04);
+    border-radius: 4px;
+}
+
+.cards-container::-webkit-scrollbar-thumb {
+    background: rgba(9, 30, 66, 0.15);
+    border-radius: 4px;
+}
+
+.cards-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(9, 30, 66, 0.25);
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .board {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .column {
+        width: 100%;
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .column {
+        min-width: 100%;
+        max-width: 100%;
+    }
+}
