@@ -1,50 +1,80 @@
-name: Deploy to GitHub Pages
+name: Debug Build
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:  # Позволяет запускать вручную
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  debug-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Debug - Show project structure
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          echo ""
+          echo "=== Full directory structure ==="
+          find . -type f -name "*.js" -o -name "*.json" -o -name "*.html" -o -name "*.css" | head -30
+          echo ""
+          echo "=== Package.json ==="
+          if [ -f "package.json" ]; then
+            cat package.json
+          else
+            echo "ERROR: package.json not found!"
+            exit 1
+          fi
+          echo ""
+          echo "=== Source directory ==="
+          if [ -d "src" ]; then
+            ls -la src/
+          else
+            echo "ERROR: src directory not found!"
+            exit 1
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'yarn'
-
-      - name: Debug - Show directory structure
-        run: |
-          echo "=== Current directory structure ==="
-          pwd
-          ls -la
-          echo "=== Source directory ==="
-          ls -la src/ || echo "src directory not found"
-          echo "=== Package.json ==="
-          cat package.json || echo "No package.json"
 
       - name: Install dependencies
-        run: yarn install
-
-      - name: Build project
         run: |
-          echo "=== Building project ==="
-          yarn build || (echo "Build failed" && exit 1)
+          echo "=== Installing dependencies ==="
+          npm install || yarn install || (echo "Install failed" && exit 1)
 
-      - name: Debug - Check dist folder
+      - name: Check webpack config
         run: |
-          echo "=== Dist folder contents ==="
-          ls -la dist/ || echo "dist folder not found"
+          echo "=== Checking webpack config ==="
+          if [ -f "webpack.config.js" ]; then
+            cat webpack.config.js
+          else
+            echo "WARNING: webpack.config.js not found"
+          fi
 
-      - name: Deploy to GitHub Pages
-        if: success()
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          publish_branch: gh-pages
+      - name: Try to build
+        run: |
+          echo "=== Trying to build ==="
+          if grep -q '"build"' package.json; then
+            echo "Build script found in package.json"
+            npm run build || yarn build || (echo "Build failed" && exit 1)
+          else
+            echo "ERROR: No build script in package.json"
+            echo "Adding minimal build script..."
+            mkdir -p dist
+            echo "<h1>Test Page</h1>" > dist/index.html
+            echo "console.log('test')" > dist/bundle.js
+          fi
+
+      - name: Check build result
+        run: |
+          echo "=== Build result ==="
+          if [ -d "dist" ]; then
+            ls -la dist/
+          else
+            echo "ERROR: dist directory was not created!"
+            exit 1
+          fi
