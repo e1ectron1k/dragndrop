@@ -1,80 +1,46 @@
-name: Debug Build
+name: Build and Deploy with Yarn
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
-  debug-build:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Debug - Show project structure
-        run: |
-          echo "=== Current directory ==="
-          pwd
-          echo ""
-          echo "=== Full directory structure ==="
-          find . -type f -name "*.js" -o -name "*.json" -o -name "*.html" -o -name "*.css" | head -30
-          echo ""
-          echo "=== Package.json ==="
-          if [ -f "package.json" ]; then
-            cat package.json
-          else
-            echo "ERROR: package.json not found!"
-            exit 1
-          fi
-          echo ""
-          echo "=== Source directory ==="
-          if [ -d "src" ]; then
-            ls -la src/
-          else
-            echo "ERROR: src directory not found!"
-            exit 1
-          fi
-
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'yarn' # Кэшируем зависимости yarn для ускорения
 
-      - name: Install dependencies
-        run: |
-          echo "=== Installing dependencies ==="
-          npm install || yarn install || (echo "Install failed" && exit 1)
+      - name: Install Dependencies with Yarn
+        run: yarn install --frozen-lockfile # Используем yarn
 
-      - name: Check webpack config
-        run: |
-          echo "=== Checking webpack config ==="
-          if [ -f "webpack.config.js" ]; then
-            cat webpack.config.js
-          else
-            echo "WARNING: webpack.config.js not found"
-          fi
+      - name: Build with Yarn
+        run: yarn build # Используем yarn
 
-      - name: Try to build
-        run: |
-          echo "=== Trying to build ==="
-          if grep -q '"build"' package.json; then
-            echo "Build script found in package.json"
-            npm run build || yarn build || (echo "Build failed" && exit 1)
-          else
-            echo "ERROR: No build script in package.json"
-            echo "Adding minimal build script..."
-            mkdir -p dist
-            echo "<h1>Test Page</h1>" > dist/index.html
-            echo "console.log('test')" > dist/bundle.js
-          fi
+      - name: Debug - Show build result
+        run: ls -la dist/ || echo "Dist folder not found!"
 
-      - name: Check build result
-        run: |
-          echo "=== Build result ==="
-          if [ -d "dist" ]; then
-            ls -la dist/
-          else
-            echo "ERROR: dist directory was not created!"
-            exit 1
-          fi
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
